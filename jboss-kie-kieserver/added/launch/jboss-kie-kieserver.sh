@@ -167,6 +167,18 @@ function configure_EJB_Timer_datasource {
                         driverType=$(find_env "${dsPrefix}_XA_CONNECTION_PROPERTY_DriverType" "${driverType}")
                         EJB_TIMER_XA_CONNECTION_PROPERTY_DriverType=${driverType}
                     fi
+                    if [ "${EJB_TIMER_DRIVER}" = "sybase" ]; then
+                        # default to Tds
+                        local networkProtocol=$(find_env "${dsPrefix}_NETWORK_PROTOCOL" "Tds")
+                        networkProtocol=$(find_env "${dsPrefix}_XA_CONNECTION_PROPERTY_NetworkProtocol" "${networkProtocol}")
+                        EJB_TIMER_XA_CONNECTION_PROPERTY_NetworkProtocol=${networkProtocol}
+                    fi
+                    if [ "${EJB_TIMER_DRIVER}" = "mssql" ]; then
+                        # default to cursor
+                        local selectMethod=$(find_env "${dsPrefix}_SELECT_METHOD" "cursor")
+                        selectMethod=$(find_env "${dsPrefix}_XA_CONNECTION_PROPERTY_SelectMethod" "${selectMethod}")
+                        EJB_TIMER_XA_CONNECTION_PROPERTY_SelectMethod=${selectMethod}
+                    fi
                 fi
             fi
             EJB_TIMER_USERNAME=$(find_env "${dsPrefix}_USERNAME")

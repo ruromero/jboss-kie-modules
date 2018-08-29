@@ -322,3 +322,88 @@ Feature: RHPAM KIE Server configuration tests
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value 50000 on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="PortNumber"]
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value 2 on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="DriverType"]
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value db2 on XPath //*[local-name()='database-data-store']/@database
+
+  Scenario: Checks if the EJB Timer was successfully configured for an external Sybase datasource with NetworkProtocol Tds (default type) and env using XA connection properties
+    When container is started with env
+      | variable                                  | value                           |
+      | DATASOURCES                               | TEST                            |
+      | TEST_USERNAME                             | bpmUser                         |
+      | TEST_PASSWORD                             | bpmPass                         |
+      | TEST_DRIVER                               | sybase                          |
+      | TEST_XA_CONNECTION_PROPERTY_ServerName    | 127.0.0.1                       |
+      | TEST_XA_CONNECTION_PROPERTY_DatabaseName  | bpms                            |
+      | TEST_XA_CONNECTION_PROPERTY_PortNumber    | 4100                            |
+      | TEST_NONXA                                | false                           |
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value sybase on XPath //*[local-name()='xa-datasource']/*[local-name()='driver']
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value 127.0.0.1 on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="ServerName"]
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value bpms on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="DatabaseName"]
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value 4100 on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="PortNumber"]
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value Tds on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="NetworkProtocol"]
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value sybase on XPath //*[local-name()='database-data-store']/@database
+
+  Scenario: Checks if the EJB Timer was successfully configured for an external Sybase datasource with NetworkProtocol SSL and env using XA connection properties
+    When container is started with env
+      | variable                                    | value                           |
+      | DATASOURCES                                 | TEST                            |
+      | TEST_USERNAME                               | bpmUser                         |
+      | TEST_PASSWORD                               | bpmPass                         |
+      | TEST_DRIVER                                 | sybase                          |
+      | TEST_XA_CONNECTION_PROPERTY_ServerName      | 127.0.0.1                       |
+      | TEST_XA_CONNECTION_PROPERTY_DatabaseName    | bpms                            |
+      | TEST_XA_CONNECTION_PROPERTY_PortNumber      | 4100                            |
+      | TEST_XA_CONNECTION_PROPERTY_NetworkProtocol | ssl                             |
+      | TEST_NONXA                                  | false                           |
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value sybase on XPath //*[local-name()='xa-datasource']/*[local-name()='driver']
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value 127.0.0.1 on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="ServerName"]
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value bpms on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="DatabaseName"]
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value 4100 on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="PortNumber"]
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value ssl on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="NetworkProtocol"]
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value sybase on XPath //*[local-name()='database-data-store']/@database
+
+  Scenario: Checks if the EJB Timer was successfully configured for an external MS SQL datasource with SelectMethod cursor (default type) and env using XA connection properties
+    When container is started with env
+      | variable                                  | value                           |
+      | DATASOURCES                               | TEST                            |
+      | TEST_USERNAME                             | bpmUser                         |
+      | TEST_PASSWORD                             | bpmPass                         |
+      | TEST_DRIVER                               | mssql                           |
+      | TEST_XA_CONNECTION_PROPERTY_ServerName    | 127.0.0.1                       |
+      | TEST_XA_CONNECTION_PROPERTY_DatabaseName  | bpms                            |
+      | TEST_NONXA                                | false                           |
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value mssql on XPath //*[local-name()='xa-datasource']/*[local-name()='driver']
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value 127.0.0.1 on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="ServerName"]
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value bpms on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="DatabaseName"]
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value cursor on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="SelectMethod"]
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value mssql on XPath //*[local-name()='database-data-store']/@database
+
+  Scenario: Checks if the EJB Timer was successfully configured for an external MS SQL datasource with SelectMethod direct and env using XA connection properties
+    When container is started with env
+      | variable                                 | value                           |
+      | DATASOURCES                              | TEST                            |
+      | TEST_USERNAME                            | bpmUser                         |
+      | TEST_PASSWORD                            | bpmPass                         |
+      | TEST_DRIVER                              | mssql                           |
+      | TEST_XA_CONNECTION_PROPERTY_ServerName   | 127.0.0.1                       |
+      | TEST_XA_CONNECTION_PROPERTY_DatabaseName | bpms                            |
+      | TEST_XA_CONNECTION_PROPERTY_SelectMethod | direct                             |
+      | TEST_NONXA                               | false                           |
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value mssql on XPath //*[local-name()='xa-datasource']/*[local-name()='driver']
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value 127.0.0.1 on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="ServerName"]
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value bpms on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="DatabaseName"]
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value direct on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="SelectMethod"]
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value mssql on XPath //*[local-name()='database-data-store']/@database
+
+  Scenario: Checks if the EJB Timer was successfully configured for an external MariaDB datasource env using XA connection properties
+    When container is started with env
+      | variable                                  | value                           |
+      | DATASOURCES                               | TEST                            |
+      | TEST_USERNAME                             | bpmUser                         |
+      | TEST_PASSWORD                             | bpmPass                         |
+      | TEST_DRIVER                               | mariadb                         |
+      | TEST_XA_CONNECTION_PROPERTY_ServerName    | 127.0.0.1                       |
+      | TEST_XA_CONNECTION_PROPERTY_DatabaseName  | bpms                            |
+      | TEST_NONXA                                | false                           |
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value mariadb on XPath //*[local-name()='xa-datasource']/*[local-name()='driver']
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value 127.0.0.1 on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="ServerName"]
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value bpms on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="DatabaseName"]
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value mariadb on XPath //*[local-name()='database-data-store']/@database
