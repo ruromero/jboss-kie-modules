@@ -75,25 +75,18 @@ function configure_EJB_Timer_datasource {
             log_info "configuring EJB Timer Datasource based on DB_SERVICE_PREFIX_MAPPING env"
             local serviceMappingName=${DB_SERVICE_PREFIX_MAPPING%=*}
             local prefix=${DB_SERVICE_PREFIX_MAPPING#*=}
+            local service=${serviceMappingName^^}
+            service=${service//-/_}
 
-            #mysql need to be created manually because the DB_SERVICE_PREFIX_MAPPING does not allow to configure the XA URL
             EJB_TIMER_DRIVER="${serviceMappingName}"
             if [[ "${serviceMappingName}" = *"mysql"* ]]; then
                 DATASOURCES="EJB_TIMER"
-
-                local service=${serviceMappingName^^}
-                service=${service//-/_}
-                local host=$(find_env "${service}_SERVICE_HOST")
-                local port=$(find_env "${service}_SERVICE_PORT" "3306")
-                local database=$(find_env "${prefix}_DATABASE")
-                EJB_TIMER_XA_CONNECTION_PROPERTY_URL="jdbc:mysql://${host}:${port}/${database}?pinGlobalTxToPhysicalConnection=true"
             else
                 # Make sure that the EJB datasource is configured first, in this way the timer's default-data-store wil be the
                 # EJBTimer datasource
                 DB_SERVICE_PREFIX_MAPPING="${serviceMappingName}=EJB_TIMER,${DB_SERVICE_PREFIX_MAPPING}"
-                TIMER_SERVICE_DATA_STORE="${serviceMappingName}"
             fi
-            set_timer_env $prefix
+            set_timer_env $prefix $service
         elif [ -n "${DATASOURCES}" ]; then
             log_info "configuring EJB Timer Datasource based on DATASOURCES env"
             # Make sure that the EJB datasource is configured first, in this way the timer's default-data-store wil be the
@@ -111,7 +104,7 @@ function set_timer_env {
     # force the provided datasource to be xa
     eval ${prefix}_NONXA=false
 
-    EJB_TIMER_DRIVER=$(find_env "${prefix}_DRIVER")
+    export EJB_TIMER_DRIVER=$(find_env "${prefix}_DRIVER")
 
     EJB_TIMER_JNDI=$(find_env "${prefix}_JNDI")
     EJB_TIMER_JNDI="${EJB_TIMER_JNDI}_EJBTimer"
@@ -127,20 +120,21 @@ function set_timer_env {
     EJB_TIMER_BACKGROUND_VALIDATION=$(find_env "${prefix}_BACKGROUND_VALIDATION")
     EJB_TIMER_BACKGROUND_VALIDATION_MILLIS=$(find_env "${prefix}_BACKGROUND_VALIDATION_MILLIS")
 
+    #mysql need to be created manually because the DB_SERVICE_PREFIX_MAPPING does not allow to configure the XA URL
     if [ "${EJB_TIMER_DRIVER}" = "mysql" ]; then
-        local host=$(find_env "${prefix}_SERVICE_HOST")
-        local port=$(find_env "${prefix}_SERVICE_PORT" "3306")
+        local service=${2:-$prefix}
+        local host=$(find_env "${service}_SERVICE_HOST")
+        local port=$(find_env "${service}_SERVICE_PORT" "3306")
         local database=$(find_env "${prefix}_DATABASE")
         EJB_TIMER_XA_CONNECTION_PROPERTY_URL="jdbc:mysql://${host}:${port}/${database}?pinGlobalTxToPhysicalConnection=true"
         EJB_TIMER_BACKGROUND_VALIDATION_MILLIS=$(find_env "${prefix}_BACKGROUND_VALIDATION_MILLIS" "10000")
     else
-        # if prefix_URL and prefix_XA_CONNECTION_PROPERTY_propertyName are set, rely on XA property
-        # the same will be valid for others XA properties
-        local url=$(find_env "${prefix}_URL")
-        url=$(find_env "${prefix}_XA_CONNECTION_PROPERTY_URL" "${url}")
-        if [ "x${url}" != "x" ]; then
+        # If the NONXA URL is set it is not converted into XA URL as some XA drivers do not provide the setURL method
+        local url=$(find_env "${prefix}_XA_CONNECTION_PROPERTY_URL")
+        if [ -z $url ]; then
             EJB_TIMER_XA_CONNECTION_PROPERTY_URL=${url}
         fi
+        TIMER_SERVICE_DATA_STORE="${serviceMappingName}"
     fi
     if [ -z "$EJB_TIMER_XA_CONNECTION_PROPERTY_URL" ]; then
         local databaseName=$(find_env "${prefix}_DATABASE")
